@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BED — Generador con IA | CEEO Latin America</title>
+<style>
+:root{--navy:#1B3A5C;--blue:#2563EB;--blue50:#EFF6FF;--green:#16A34A;--green-l:#F0FDF4;--yellow:#D97706;--yellow-l:#FFFBEB;--red:#DC2626;--red-l:#FEF2F2;--gray:#6B7280;--gray-l:#F3F4F6;--gray-b:#D1D5DB;--text:#1F2937;--text-m:#374151}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;background:linear-gradient(180deg,#F8FAFC,#EEF2F7);min-height:100vh;color:var(--text);padding:16px 12px}
+.mx{max-width:720px;margin:0 auto}
+/* Header */
+.hdr{border-bottom:3px solid var(--navy);padding-bottom:8px;margin-bottom:4px;display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:8px}
+.hdr h1{font-size:16px;font-weight:800;color:var(--navy);letter-spacing:-.3px}
+.hdr .sub{font-size:10px;color:var(--gray);margin-top:2px}
+.hdr .right{text-align:right}
+.hdr .brand{font-size:11px;font-weight:700;color:var(--navy)}
+.hdr .uso{font-size:9px;color:var(--gray)}
+/* Section bar */
+.sb{background:var(--navy);color:#fff;font-size:11px;font-weight:700;padding:5px 10px;border-radius:5px;margin:14px 0 6px;letter-spacing:.2px}
+/* Card */
+.card{background:#fff;border:1px solid var(--gray-b);border-radius:8px;padding:12px;margin-bottom:8px}
+/* Row / Col */
+.row{display:flex;gap:10px;flex-wrap:wrap}.row+.row{margin-top:8px}
+.col{flex:1;min-width:0}
+/* Fields */
+.fl{display:block;font-size:11px;font-weight:700;color:var(--navy);margin-bottom:2px}
+.fh{font-size:10px;color:var(--gray);font-style:italic;margin-bottom:4px}
+input[type="text"],input[type="date"],input[type="password"],textarea{width:100%;border:1px solid var(--gray-b);border-radius:6px;padding:6px 10px;font-size:12px;color:var(--text);background:#fff;font-family:inherit;transition:border-color .2s,box-shadow .2s;resize:none}
+input:focus,textarea:focus{outline:none;border-color:var(--blue);box-shadow:0 0 0 3px rgba(37,99,235,.12)}
+textarea::placeholder,input::placeholder{color:#C4C9D2}
+/* Radio / Check */
+.rg{display:flex;flex-wrap:wrap;gap:4px 12px}
+.rl{display:flex;align-items:center;gap:4px;font-size:11px;cursor:pointer;padding:2px 4px;border-radius:4px;user-select:none}
+.rl:hover{background:var(--gray-l)}
+input[type="radio"],input[type="checkbox"]{accent-color:var(--navy);width:14px;height:14px;cursor:pointer}
+/* Nivel buttons */
+.niveles{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.nb{border:2px solid var(--gray-b);border-radius:8px;background:#fff;cursor:pointer;text-align:left;transition:all .2s;opacity:.55;overflow:hidden}
+.nb:hover{opacity:.85;transform:translateY(-1px)}
+.nb.active{opacity:1;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.nb.active.n1{border-color:var(--green);background:var(--green-l)}
+.nb.active.n2{border-color:var(--yellow);background:var(--yellow-l)}
+.nb.active.n3{border-color:var(--red);background:var(--red-l)}
+.nh{color:#fff;font-size:9px;font-weight:700;text-align:center;padding:4px 6px;letter-spacing:.3px}
+.nh.g{background:var(--green)}.nh.y{background:var(--yellow)}.nh.r{background:var(--red)}
+.nbody{padding:6px 8px;font-size:10px;color:var(--text-m);line-height:1.35}
+.nbody .act{font-weight:600;color:var(--text);margin-top:4px}
+/* Module cards */
+.mods{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.mc{border:2px solid var(--gray-b);border-radius:8px;padding:10px;cursor:pointer;transition:all .2s;opacity:.45;background:var(--gray-l);user-select:none}
+.mc:hover{opacity:.7}
+.mc.active{border-color:var(--blue);background:var(--blue50);opacity:1}
+.mt{font-size:10px;font-weight:700;color:var(--gray);margin-bottom:3px}
+.mc.active .mt{color:var(--blue)}
+.mq{font-size:10px;font-style:italic;color:var(--gray)}
+.mtools{font-size:9px;color:#9CA3AF;margin-top:4px}
+/* BC depth */
+.bcd{background:var(--gray-l);border:1px solid var(--gray-b);border-radius:6px;padding:8px 10px;margin-top:8px;display:none}
+.bcd.vis{display:block}
+/* Info box */
+.info{border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:11px;line-height:1.5}
+.info-blue{background:#EFF6FF;border:1px solid #BFDBFE;color:#1E3A5F}
+.info-amber{background:#FFFBEB;border:1px solid #FDE68A;color:#92400E}
+.info-red{background:#FEF2F2;border:1px solid #FECACA;color:#991B1B}
+.info b{font-weight:700}
+/* Buttons */
+.btns{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+.btn{padding:10px 28px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;font-family:inherit}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--navy);color:#fff;box-shadow:0 2px 8px rgba(27,58,92,.25)}
+.btn-p:hover{background:#15304D;box-shadow:0 4px 12px rgba(27,58,92,.35)}
+.btn-s{background:#fff;color:var(--gray);border:1px solid var(--gray-b)}
+.btn-s:hover{background:var(--gray-l)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+/* Spinner */
+.spinner{display:inline-block;width:40px;height:40px;border:3px solid var(--gray-b);border-top-color:var(--navy);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+/* Footer */
+.foot{border-top:2.5px solid var(--navy);margin-top:16px;padding-top:8px;text-align:center}
+.foot-t{font-size:9px;color:var(--gray);margin-bottom:10px}
+.foot-t b{color:var(--navy)}
+/* Config bar */
+.cfg{background:#fff;border:1px solid var(--gray-b);border-radius:8px;padding:10px 12px;margin-bottom:10px}
+.cfg-row{display:flex;gap:10px;align-items:flex-end;flex-wrap:wrap}
+.cfg-row .col{min-width:150px}
+.key-toggle{font-size:10px;color:var(--blue);cursor:pointer;text-decoration:underline;margin-top:2px;display:inline-block}
+/* Responsive */
+@media(max-width:600px){.niveles,.mods{grid-template-columns:1fr}.row{flex-direction:column;gap:6px}.hdr{flex-direction:column;align-items:flex-start}.hdr .right{text-align:left}.cfg-row{flex-direction:column}}
+/* HIDE on specific views */
+.hide{display:none}
+</style>
+</head>
+<body>
+
+<div class="mx">
+  <!-- ═══ VIEW 1: INPUT ═══ -->
+  <div id="v-input">
+    <div class="hdr">
+      <div>
+        <h1>GENERADOR DE BED</h1>
+        <div class="sub">Brief Estratégico de Decisión · Metodología B2C v3.0</div>
+      </div>
+      <div class="right">
+        <div class="brand">CEEO Latin America</div>
+        <div class="uso">ASISTENTE IA COMERCIAL</div>
+      </div>
+    </div>
+
+    <!-- API Key + Config -->
+    <div class="cfg" id="configBox">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <span class="fl" style="margin:0">Configuración</span>
+        <span class="key-toggle" id="toggleKey" onclick="toggleKeyVis()">mostrar clave</span>
+      </div>
+      <div class="cfg-row">
+        <div class="col" style="flex:2">
+          <label class="fl">API Key de Anthropic</label>
+          <input type="password" id="apiKey" placeholder="sk-ant-..." style="font-family:monospace;font-size:11px">
+        </div>
+        <div class="col">
+          <label class="fl">EA responsable</label>
+          <input type="text" id="eaName" placeholder="Tu nombre">
+        </div>
+        <div class="col" style="flex:0 0 auto">
+          <label class="fl">Clasificación conductual</label>
+          <div class="rg" style="margin-top:4px">
+            <label class="rl"><input type="radio" name="cond" value="hot" checked> 🔴 HOT</label>
+            <label class="rl"><input type="radio" name="cond" value="warm"> 🟠 WARM</label>
+            <label class="rl"><input type="radio" name="cond" value="cold"> ⚫ COLD</label>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:6px">
+        <p style="font-size:9px;color:var(--gray)">🔒 La API Key se usa únicamente en tu navegador y no se almacena en ningún servidor.</p>
+      </div>
+    </div>
+
+    <div class="info info-blue">
+      <b>¿Cómo funciona?</b><br>
+      Pega la conversación de WhatsApp o chat con el prospecto. La IA analizará el texto, identificará el perfil psicológico,
+      extraerá los hallazgos clave y generará el BED completo para que lo revises antes de descargarlo como PDF.
+    </div>
+
+    <div class="card">
+      <label class="fl">Conversación con el prospecto</label>
+      <p class="fh">Pega aquí el texto completo de la conversación de WhatsApp, chat o notas de la llamada</p>
+      <textarea id="conversation" rows="16" style="font-family:monospace;font-size:11px;line-height:1.5;background:#FAFBFC"
+        placeholder="EA: Hola Carlos, gracias por tu tiempo...&#10;Prospecto: Hola, sí, estuve viendo el material que me enviaron...&#10;EA: Perfecto, cuéntame, ¿qué situación te llevó a buscar una certificación como esta?&#10;Prospecto: Mira, llevo 3 años como gerente de planificación y..."></textarea>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px">
+        <p id="charCount" style="font-size:10px;color:var(--gray)">Sin texto aún</p>
+      </div>
+    </div>
+
+    <div id="errorBox" class="info info-red hide"></div>
+
+    <div class="btns">
+      <button class="btn btn-p" id="btnAnalyze" onclick="analyze()">
+        Analizar conversación y generar BED
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══ VIEW 2: LOADING ═══ -->
+  <div id="v-loading" class="hide" style="min-height:60vh;display:flex;align-items:center;justify-content:center">
+    <div style="text-align:center">
+      <div class="spinner"></div>
+      <p style="font-size:14px;font-weight:600;color:var(--navy);margin-top:16px">Analizando conversación...</p>
+      <p style="font-size:12px;color:var(--gray);margin-top:4px">Identificando perfil, hallazgos y nivel de escalamiento</p>
+    </div>
+  </div>
+
+  <!-- ═══ VIEW 3: REVIEW ═══ -->
+  <div id="v-review" class="hide">
+    <div class="hdr">
+      <div>
+        <h1>BRIEF ESTRATÉGICO DE DECISIÓN</h1>
+        <div class="sub">Generado por IA · Revisa y ajusta antes de descargar</div>
+      </div>
+      <div class="right">
+        <div class="brand">CEEO Latin America</div>
+        <div class="uso">USO INTERNO · EQUIPO COMERCIAL</div>
+      </div>
+    </div>
+
+    <div class="info info-amber">
+      <b>Revisa el BED generado.</b> Todos los campos son editables. Ajusta lo que necesites antes de descargar el PDF.
+    </div>
+
+    <!-- A -->
+    <div class="sb">A. DATOS DEL PROSPECTO</div>
+    <div class="card">
+      <div class="row">
+        <div class="col"><label class="fl">Nombre completo</label><input type="text" id="b_nombre"></div>
+        <div class="col"><label class="fl">Empresa</label><input type="text" id="b_empresa"></div>
+      </div>
+      <div class="row">
+        <div class="col"><label class="fl">Cargo</label><input type="text" id="b_cargo"></div>
+        <div class="col"><label class="fl">País</label><input type="text" id="b_pais"></div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <label class="fl">Perfil psicológico</label>
+          <div class="rg">
+            <label class="rl"><input type="radio" name="b_perfil" value="visionario"> 🚀 Visionario</label>
+            <label class="rl"><input type="radio" name="b_perfil" value="transformador"> 🔧 Transformador</label>
+            <label class="rl"><input type="radio" name="b_perfil" value="saturado"> 🔥 Saturado</label>
+            <label class="rl"><input type="radio" name="b_perfil" value="trepador"> 📈 Trepador</label>
+          </div>
+        </div>
+        <div class="col">
+          <label class="fl">Clasificación conductual</label>
+          <div class="rg">
+            <label class="rl"><input type="radio" name="b_cond" value="hot"> 🔴 HOT</label>
+            <label class="rl"><input type="radio" name="b_cond" value="warm"> 🟠 WARM</label>
+            <label class="rl"><input type="radio" name="b_cond" value="cold"> ⚫ COLD</label>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col"><label class="fl">Fecha del BED</label><input type="date" id="b_fecha"></div>
+        <div class="col"><label class="fl">EA responsable</label><input type="text" id="b_ea"></div>
+      </div>
+    </div>
+
+    <!-- B -->
+    <div class="sb">B. HALLAZGOS DE LA CONVERSACIÓN</div>
+    <div class="card">
+      <div class="row">
+        <div class="col"><label class="fl">1. Objetivo principal</label><p class="fh">Qué quiere lograr</p><textarea id="b_objetivo" rows="3"></textarea></div>
+        <div class="col"><label class="fl">3. Impacto esperado</label><p class="fh">Qué cambiaría</p><textarea id="b_impacto" rows="3"></textarea></div>
+      </div>
+      <div class="row">
+        <div class="col"><label class="fl">2. Contexto y prioridades</label><p class="fh">Situación actual, desafío</p><textarea id="b_contexto" rows="3"></textarea></div>
+        <div class="col">
+          <label class="fl">4. Financiamiento</label>
+          <div class="rg" style="margin-bottom:6px">
+            <label class="rl"><input type="radio" name="b_fin" value="personal"> Personal</label>
+            <label class="rl"><input type="radio" name="b_fin" value="corporativo"> Corporativo</label>
+            <label class="rl"><input type="radio" name="b_fin" value="mixto"> Mixto</label>
+          </div>
+          <textarea id="b_finDetalle" rows="2" placeholder="Quién aprueba si corporativo"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- C -->
+    <div class="sb">C. HIPÓTESIS COMERCIALES DEL EA</div>
+    <div class="card">
+      <div class="row">
+        <div class="col"><label class="fl">5. Hipótesis de motivación</label><p class="fh">¿Por qué compraría?</p><textarea id="b_hipotesis" rows="3"></textarea></div>
+        <div class="col">
+          <label class="fl">6. Naturaleza de la decisión</label>
+          <div class="rg" style="margin-bottom:6px">
+            <label class="rl"><input type="radio" name="b_nat" value="profesional"> Profesional</label>
+            <label class="rl"><input type="radio" name="b_nat" value="empresarial"> Empresarial</label>
+          </div>
+          <textarea id="b_decisores" rows="2" placeholder="Otros decisores"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- D -->
+    <div class="sb">D. RIESGOS Y PREGUNTAS ESTRATÉGICAS</div>
+    <div class="card">
+      <div class="row">
+        <div class="col"><label class="fl">7. Riesgos percibidos</label><textarea id="b_riesgos" rows="3"></textarea></div>
+        <div class="col"><label class="fl">8. Preguntas estratégicas</label><textarea id="b_preguntas" rows="3"></textarea></div>
+      </div>
+    </div>
+
+    <!-- E -->
+    <div class="sb">E. GATE DE ESCALAMIENTO CONSULTIVO</div>
+    <div class="niveles">
+      <button class="nb n1" onclick="selNivel('1')">
+        <div class="nh g">NIVEL 1 — DECISIÓN SIMPLE</div>
+        <div class="nbody">Sin riesgos relevantes, preparado para decidir.<div class="act">→ EA resuelve dudas e inicia inscripción.</div></div>
+      </button>
+      <button class="nb n2" onclick="selNivel('2')">
+        <div class="nh y">NIVEL 2 — DECISIÓN CONSULTIVA</div>
+        <div class="nbody">Necesita comparar alternativas o comprender ROI.<div class="act">→ Consultoría Ejecutiva con SEA.</div></div>
+      </button>
+      <button class="nb n3" onclick="selNivel('3')">
+        <div class="nh r">NIVEL 3 — DECISIÓN ESTRATÉGICA</div>
+        <div class="nbody">Múltiples decisores, Business Case corporativo.<div class="act">→ Consultoría ampliada con SEA.</div></div>
+      </button>
+    </div>
+
+    <!-- F -->
+    <div class="sb">F. RUTA CONSULTIVA RECOMENDADA</div>
+    <div class="card">
+      <p class="fh" style="margin-bottom:8px">Módulos que el SEA debe activar</p>
+      <div class="mods">
+        <div class="mc" id="mc_eval" onclick="togMod('eval')">
+          <div class="mt">① EVALUACIÓN DE ALTERNATIVAS</div>
+          <div class="mq">¿Estoy eligiendo correctamente?</div>
+          <div class="mtools">Battlecards · Comparativos · Benchmark</div>
+        </div>
+        <div class="mc" id="mc_bc" onclick="togMod('bc')">
+          <div class="mt">② JUSTIFICACIÓN (BUSINESS CASE)</div>
+          <div class="mq">¿Vale la pena esta inversión?</div>
+          <div class="mtools">Calculadora ROI · Plantillas BC · Roadmap</div>
+        </div>
+        <div class="mc" id="mc_val" onclick="togMod('val')">
+          <div class="mt">③ VALIDACIÓN (EVIDENCIA)</div>
+          <div class="mq">¿Puedo confiar en esta decisión?</div>
+          <div class="mtools">Casos éxito · Alumni · Credenciales DDI</div>
+        </div>
+      </div>
+      <div class="bcd" id="bcDepth">
+        <label class="fl">Profundidad del Business Case:</label>
+        <div class="rg">
+          <label class="rl"><input type="radio" name="b_bcn" value="1"> BC Personal</label>
+          <label class="rl"><input type="radio" name="b_bcn" value="2"> BC Profesional</label>
+          <label class="rl"><input type="radio" name="b_bcn" value="3"> BC Corporativo</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- Obs + Paso -->
+    <div class="card">
+      <div class="row">
+        <div class="col"><label class="fl">Observaciones</label><textarea id="b_obs" rows="3"></textarea></div>
+        <div class="col">
+          <label class="fl">Próximo paso</label>
+          <div style="margin-top:4px">
+            <label class="rl"><input type="radio" name="b_paso" value="cierre" onchange="togFecha()"> Cierre directo por EA</label>
+            <label class="rl"><input type="radio" name="b_paso" value="consultoria" onchange="togFecha()"> Consultoría Ejecutiva agendada</label>
+            <label class="rl"><input type="radio" name="b_paso" value="nutrir" onchange="togFecha()"> Devolver a nutrición</label>
+          </div>
+          <div id="pasoFecha" style="display:none;margin-top:6px">
+            <label class="fl" style="font-size:10px">Fecha agendada:</label>
+            <input type="date" id="b_pasoFecha">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="foot">
+      <div class="foot-t"><b>El BED no resume la conversación; prepara la siguiente.</b></div>
+      <div class="btns">
+        <button class="btn btn-p" onclick="downloadPDF()">⬇ Descargar PDF</button>
+        <button class="btn btn-s" onclick="startOver()">↺ Nueva conversación</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── State ──
+let selNivelVal = '';
+const mods = { eval: false, bc: false, val: false };
+
+// ── View switching ──
+function showView(v) {
+  ['v-input','v-loading','v-review'].forEach(id => {
+    const el = document.getElementById(id);
+    if (id === v) { el.classList.remove('hide'); el.style.display = ''; }
+    else { el.classList.add('hide'); el.style.display = 'none'; }
+  });
+}
+
+// ── API Key toggle ──
+function toggleKeyVis() {
+  const inp = document.getElementById('apiKey');
+  const tog = document.getElementById('toggleKey');
+  if (inp.type === 'password') { inp.type = 'text'; tog.textContent = 'ocultar clave'; }
+  else { inp.type = 'password'; tog.textContent = 'mostrar clave'; }
+}
+
+// ── Character count ──
+document.getElementById('conversation').addEventListener('input', function() {
+  const t = this.value;
+  const el = document.getElementById('charCount');
+  if (t.length > 0) {
+    const words = t.split(/\s+/).filter(Boolean).length;
+    el.textContent = t.length.toLocaleString() + ' caracteres · ' + words.toLocaleString() + ' palabras';
+  } else { el.textContent = 'Sin texto aún'; }
+});
+
+// ── Nivel selection ──
+function selNivel(n) {
+  selNivelVal = n;
+  document.querySelectorAll('.nb').forEach(b => {
+    const bv = b.querySelector('.nh').className.includes('g') ? '1' : b.querySelector('.nh').className.includes('y') ? '2' : '3';
+    b.classList.toggle('active', bv === n);
+  });
+}
+
+// ── Module toggles ──
+function togMod(id) {
+  mods[id] = !mods[id];
+  document.getElementById('mc_' + id).classList.toggle('active', mods[id]);
+  document.getElementById('bcDepth').classList.toggle('vis', mods.bc);
+}
+
+// ── Fecha toggle ──
+function togFecha() {
+  const sel = document.querySelector('input[name="b_paso"]:checked');
+  document.getElementById('pasoFecha').style.display = (sel && sel.value === 'consultoria') ? 'block' : 'none';
+}
+
+// ── Helpers ──
+function gv(id) { const el = document.getElementById(id); return el ? el.value : ''; }
+function gr(name) { const el = document.querySelector('input[name="'+name+'"]:checked'); return el ? el.value : ''; }
+function sv(id, v) { const el = document.getElementById(id); if (el) el.value = v || ''; }
+function sr(name, v) { if (!v) return; const el = document.querySelector('input[name="'+name+'"][value="'+v+'"]'); if (el) el.checked = true; }
+
+// ── ANALYZE ──
+async function analyze() {
+  const apiKey = gv('apiKey').trim();
+  const conv = gv('conversation').trim();
+
+  if (!apiKey) { showError('Ingresa tu API Key de Anthropic para continuar.'); return; }
+  if (!conv) { showError('Pega la conversación para analizar.'); return; }
+  hideError();
+  showView('v-loading');
+
+  const systemPrompt = `Eres un analista comercial experto de CEEO Latin America. Tu trabajo es analizar conversaciones de orientación estratégica entre un Enrollment Advisor y un prospecto del Diplomado Demand Driven Supply Chain Planning, y extraer la información necesaria para construir el Brief Estratégico de Decisión (BED).
+
+CONTEXTO METODOLÓGICO:
+- 4 perfiles psicológicos: visionario (líder estratégico, quiere transformar), transformador (operacional, herramientas concretas), saturado (agotado, busca alivio), trepador (ambicioso, crecimiento carrera)
+- Naturaleza: profesional (decide solo) o empresarial (transforma organización)
+- 3 niveles escalamiento: 1 (simple, EA cierra), 2 (consultiva, necesita SEA), 3 (estratégica, múltiples decisores)
+- 3 módulos consultivos: Evaluación Alternativas, Business Case, Validación (evidencia)
+- Business Case: 1 (personal), 2 (profesional), 3 (corporativo)
+
+Responde ÚNICAMENTE con JSON válido (sin markdown, sin backticks):
+{"nombre":"","empresa":"","cargo":"","pais":"","perfil":"visionario|transformador|saturado|trepador","objetivo":"","contexto":"","impacto":"","financiamiento":"personal|corporativo|mixto","finDetalle":"","hipotesis":"","naturaleza":"profesional|empresarial","decisores":"","riesgos":"","preguntas":"","nivel":"1|2|3","modEval":true/false,"modBC":true/false,"modVal":true/false,"bcNivel":"1|2|3 o vacío","observaciones":"","proximoPaso":"cierre|consultoria|nutrir"}`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': apiKey,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 2000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: 'Analiza esta conversación y genera el BED en JSON:\n\n' + conv }]
+      })
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error?.message || 'Error ' + res.status);
+    }
+
+    const data = await res.json();
+    const text = (data.content || []).map(b => b.text || '').join('');
+    const clean = text.replace(/```json|```/g, '').trim();
+    const parsed = JSON.parse(clean);
+
+    // Populate review form
+    sv('b_nombre', parsed.nombre);
+    sv('b_empresa', parsed.empresa);
+    sv('b_cargo', parsed.cargo);
+    sv('b_pais', parsed.pais);
+    sr('b_perfil', parsed.perfil);
+    sr('b_cond', gr('cond'));
+    sv('b_fecha', new Date().toISOString().slice(0,10));
+    sv('b_ea', gv('eaName'));
+    sv('b_objetivo', parsed.objetivo);
+    sv('b_contexto', parsed.contexto);
+    sv('b_impacto', parsed.impacto);
+    sr('b_fin', parsed.financiamiento);
+    sv('b_finDetalle', parsed.finDetalle);
+    sv('b_hipotesis', parsed.hipotesis);
+    sr('b_nat', parsed.naturaleza);
+    sv('b_decisores', parsed.decisores);
+    sv('b_riesgos', parsed.riesgos);
+    sv('b_preguntas', parsed.preguntas);
+    selNivel(parsed.nivel || '');
+    mods.eval = !!parsed.modEval;
+    mods.bc = !!parsed.modBC;
+    mods.val = !!parsed.modVal;
+    document.getElementById('mc_eval').classList.toggle('active', mods.eval);
+    document.getElementById('mc_bc').classList.toggle('active', mods.bc);
+    document.getElementById('mc_val').classList.toggle('active', mods.val);
+    document.getElementById('bcDepth').classList.toggle('vis', mods.bc);
+    if (parsed.bcNivel) sr('b_bcn', parsed.bcNivel);
+    sv('b_obs', parsed.observaciones);
+    if (parsed.proximoPaso) { sr('b_paso', parsed.proximoPaso); togFecha(); }
+
+    showView('v-review');
+  } catch (err) {
+    console.error(err);
+    showError('Error: ' + err.message);
+    showView('v-input');
+  }
+}
+
+function showError(msg) { const el = document.getElementById('errorBox'); el.textContent = msg; el.classList.remove('hide'); }
+function hideError() { document.getElementById('errorBox').classList.add('hide'); }
+
+function startOver() {
+  if (!confirm('¿Volver al inicio?')) return;
+  showView('v-input');
+}
+
+// ── PDF ──
+function downloadPDF() {
+  const d = {
+    nombre: gv('b_nombre'), empresa: gv('b_empresa'), cargo: gv('b_cargo'), pais: gv('b_pais'),
+    perfil: gr('b_perfil'), conductual: gr('b_cond'), fecha: gv('b_fecha'), ea: gv('b_ea'),
+    objetivo: gv('b_objetivo'), contexto: gv('b_contexto'), impacto: gv('b_impacto'),
+    financiamiento: gr('b_fin'), finDetalle: gv('b_finDetalle'),
+    hipotesis: gv('b_hipotesis'), naturaleza: gr('b_nat'), decisores: gv('b_decisores'),
+    riesgos: gv('b_riesgos'), preguntas: gv('b_preguntas'),
+    nivel: selNivelVal, modEval: mods.eval, modBC: mods.bc, modVal: mods.val,
+    bcNivel: gr('b_bcn'), observaciones: gv('b_obs'),
+    proximoPaso: gr('b_paso'), proximoFecha: gv('b_pasoFecha'),
+  };
+
+  const V = v => v || '—';
+  const NL = t => (t||'—').replace(/\n/g,'<br>');
+  const T = (t,bg) => '<span style="display:inline-block;padding:1px 7px;border-radius:9px;font-size:7.5px;font-weight:600;color:#fff;background:'+bg+'">'+t+'</span>';
+  const PL = {visionario:'🚀 Visionario',transformador:'🔧 Transformador',saturado:'🔥 Saturado',trepador:'📈 Trepador'};
+  const CL = {hot:'🔴 HOT',warm:'🟠 WARM',cold:'⚫ COLD'};
+  const CC = {hot:'#DC2626',warm:'#D97706',cold:'#6B7280'};
+  const FL = {personal:'Personal',corporativo:'Corporativo',mixto:'Mixto'};
+  const NTL = {profesional:'Profesional (decide solo)',empresarial:'Empresarial (transforma org.)'};
+  const NVL = {'1':'NIVEL 1 — DECISIÓN SIMPLE','2':'NIVEL 2 — DECISIÓN CONSULTIVA','3':'NIVEL 3 — DECISIÓN ESTRATÉGICA'};
+  const NVC = {'1':'#16A34A','2':'#D97706','3':'#DC2626'};
+  const NVB = {'1':'#F0FDF4','2':'#FFFBEB','3':'#FEF2F2'};
+  const NVD = {'1':'Comprende el programa, sin riesgos.<br><b>→ EA resuelve dudas e inicia inscripción</b>','2':'Comparar alternativas o comprender ROI.<br><b>→ Consultoría Ejecutiva con SEA</b>','3':'Múltiples decisores, BC corporativo.<br><b>→ Consultoría ampliada con SEA</b>'};
+  const BCL = {'1':'BC Personal','2':'BC Profesional','3':'BC Corporativo'};
+  const PSL = {cierre:'Cierre directo por EA (Nivel 1)',consultoria:'Consultoría Ejecutiva agendada',nutrir:'Devolver a nutrición'};
+
+  const nvBoxes = ['1','2','3'].map(n=>{const a=d.nivel===n;return '<div style="border:'+(a?'2':'1')+'px solid '+(a?NVC[n]:'#D1D5DB')+';border-radius:4px;opacity:'+(a?'1':'.35')+';\
+'+(a?'background:'+NVB[n]:'')+'">\
+<div style="background:'+NVC[n]+';color:#fff;font-size:8px;font-weight:700;text-align:center;padding:3px">'+NVL[n]+'</div>\
+<div style="padding:4px 6px;font-size:7px;line-height:1.3">'+NVD[n]+'</div></div>';}).join('');
+
+  const mdArr = [{k:'modEval',t:'① EVALUACIÓN DE ALTERNATIVAS',q:'¿Eligiendo correctamente?',tl:'Battlecards · Comparativos'},{k:'modBC',t:'② JUSTIFICACIÓN (BC)',q:'¿Vale la inversión?',tl:'Calculadora ROI · Plantillas'},{k:'modVal',t:'③ VALIDACIÓN (EVIDENCIA)',q:'¿Puedo confiar?',tl:'Casos éxito · Alumni'}];
+  const mdBoxes = mdArr.map(m=>{const on=d[m.k];return '<div style="border:1px solid '+(on?'#2563EB':'#D1D5DB')+';border-radius:4px;padding:5px 6px;background:'+(on?'#EFF6FF':'#fff')+';opacity:'+(on?'1':'.35')+'">\
+<div style="font-size:7.5px;font-weight:700;color:'+(on?'#2563EB':'#9CA3AF')+'">'+(on?'✅ ':'')+m.t+'</div>\
+<div style="font-size:7px;font-style:italic;color:#6B7280">'+m.q+'</div>\
+<div style="font-size:6.5px;color:#9CA3AF;margin-top:2px">'+m.tl+'</div></div>';}).join('');
+
+  const html = '<!DOCTYPE html><html><head><meta charset="utf-8"><title>BED — '+V(d.nombre)+'</title>\
+<style>@page{size:letter;margin:12mm 14mm 10mm 14mm}*{box-sizing:border-box;margin:0;padding:0}body{font-family:Helvetica,Arial,sans-serif;font-size:9px;color:#1F2937;line-height:1.35;-webkit-print-color-adjust:exact;print-color-adjust:exact}.hdr{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2.5px solid #1B3A5C;padding-bottom:5px;margin-bottom:6px}.hdr h1{font-size:14px;color:#1B3A5C}.hdr .s{font-size:7.5px;color:#6B7280;margin-top:1px}.hdr .r{text-align:right;font-size:7.5px;color:#1B3A5C;font-weight:700}.hdr .r span{font-weight:400;color:#6B7280;display:block;font-size:7px}.sb{background:#1B3A5C;color:#fff;font-size:8.5px;font-weight:700;padding:3px 8px;border-radius:3px;margin:6px 0 4px}.g2{display:grid;grid-template-columns:1fr 1fr}.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:5px;margin:4px 0}.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr}.c{padding:3px 6px;border-bottom:1px solid #E5E7EB}.c.bg{background:#F7F8FA}.c label{font-size:7px;font-weight:700;color:#1B3A5C;display:block;margin-bottom:1px}.c .h{font-size:6.5px;color:#6B7280;font-style:italic;margin-bottom:2px}.c .v{font-size:8.5px;color:#1F2937;min-height:13px;white-space:pre-wrap}.dl{border-left:1px solid #E5E7EB}.bg2{display:grid;grid-template-columns:3fr 2fr;border-top:1px solid #D1D5DB;padding-top:4px;margin-top:5px}.ft{border-top:2px solid #1B3A5C;margin-top:6px;padding-top:3px;font-size:6px;color:#6B7280;text-align:center}.ft b{color:#1B3A5C}@media print{.np{display:none!important}}</style></head><body>\
+<div class="hdr"><div><h1>BRIEF ESTRATÉGICO DE DECISIÓN (BED)</h1><div class="s">Metodología B2C v3.0 · Diplomado Demand Driven Supply Chain Planning®</div></div><div class="r">CEEO Latin America<span>USO INTERNO · EQUIPO COMERCIAL</span></div></div>\
+<div class="sb">A. DATOS DEL PROSPECTO</div>\
+<div class="g4"><div class="c bg"><label>Nombre</label><div class="v">'+V(d.nombre)+'</div></div><div class="c bg dl"><label>Empresa</label><div class="v">'+V(d.empresa)+'</div></div><div class="c bg dl"><label>Cargo</label><div class="v">'+V(d.cargo)+'</div></div><div class="c bg dl"><label>País</label><div class="v">'+V(d.pais)+'</div></div></div>\
+<div class="g4"><div class="c bg"><label>Perfil</label><div class="v">'+(d.perfil?T(PL[d.perfil]||d.perfil,'#1B3A5C'):'—')+'</div></div><div class="c bg dl"><label>Conductual</label><div class="v">'+(d.conductual?T(CL[d.conductual]||d.conductual,CC[d.conductual]||'#6B7280'):'—')+'</div></div><div class="c bg dl"><label>Fecha</label><div class="v">'+V(d.fecha)+'</div></div><div class="c bg dl"><label>EA</label><div class="v">'+V(d.ea)+'</div></div></div>\
+<div class="sb">B. HALLAZGOS DE LA CONVERSACIÓN</div>\
+<div class="g2"><div class="c"><label>1. Objetivo</label><div class="v">'+NL(d.objetivo)+'</div></div><div class="c dl"><label>3. Impacto</label><div class="v">'+NL(d.impacto)+'</div></div></div>\
+<div class="g2"><div class="c"><label>2. Contexto</label><div class="v">'+NL(d.contexto)+'</div></div><div class="c dl"><label>4. Financiamiento</label><div class="v">'+(d.financiamiento?T(FL[d.financiamiento],'#1B3A5C'):'—')+(d.finDetalle?'<br>'+d.finDetalle:'')+'</div></div></div>\
+<div class="sb">C. HIPÓTESIS COMERCIALES</div>\
+<div class="g2"><div class="c"><label>5. Hipótesis</label><div class="v">'+NL(d.hipotesis)+'</div></div><div class="c dl"><label>6. Naturaleza</label><div class="v">'+(d.naturaleza?T(NTL[d.naturaleza],'#1B3A5C'):'—')+(d.decisores?'<br><b>Decisores:</b> '+d.decisores:'')+'</div></div></div>\
+<div class="sb">D. RIESGOS Y PREGUNTAS</div>\
+<div class="g2"><div class="c"><label>7. Riesgos</label><div class="v">'+NL(d.riesgos)+'</div></div><div class="c dl"><label>8. Preguntas estratégicas</label><div class="v">'+NL(d.preguntas)+'</div></div></div>\
+<div class="sb">E. GATE DE ESCALAMIENTO</div><div class="g3">'+nvBoxes+'</div>\
+<div class="sb">F. RUTA CONSULTIVA</div><div class="g3">'+mdBoxes+'</div>\
+'+(d.bcNivel?'<div style="font-size:7.5px;margin:3px 0"><b>Profundidad BC:</b> '+T(BCL[d.bcNivel],'#1B3A5C')+'</div>':'')+'\
+<div class="bg2"><div class="c" style="border:none"><label>Observaciones</label><div class="v">'+NL(d.observaciones)+'</div></div><div class="c dl" style="border:none"><label>Próximo paso</label><div class="v">'+(d.proximoPaso?PSL[d.proximoPaso]||d.proximoPaso:'—')+(d.proximoPaso==='consultoria'&&d.proximoFecha?' · Fecha: '+d.proximoFecha:'')+'</div></div></div>\
+<div class="ft">CEEO Latin America · Confidencial · Metodología B2C v3.0<br><b>El BED no resume la conversación; prepara la siguiente.</b></div>\
+<div class="np" style="text-align:center;margin:20px"><button onclick="window.print()" style="padding:10px 30px;background:#1B3A5C;color:#fff;border:none;border-radius:6px;font-size:14px;cursor:pointer">⬇ Guardar como PDF</button></div>\
+</body></html>';
+
+  const w = window.open('','_blank');
+  if(!w){alert('Permite ventanas emergentes.');return;}
+  w.document.write(html);w.document.close();
+  setTimeout(()=>w.print(),500);
+}
+</script>
+</body>
+</html>
